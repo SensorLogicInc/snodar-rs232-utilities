@@ -6,6 +6,43 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 from queue import Queue
 import threading
+import csv
+
+FIELDNAMES=[
+        "Time",
+        "Current (mA)",
+        "Voltage (V)",
+        "NRF Temperature",
+        "PCB Temperature",
+        "IMU Temperature",
+        "IMU Roll",
+        "IMU Pitch",
+        "IMU Yaw",
+        "IMU Flag",
+        "Lidar SoC Temperature",
+        "Lidar PCB Temperature",
+        "Lidar Distance",
+        "Heater Enabled",
+        "Outside Temperature",
+        "Seasonal Snow Depth",
+        "Seasonal Snow Fall",
+        "New Snow Fall",
+        "DoY SWE",
+        "Temp SWE",
+]
+
+CSV_FILENAME='test.csv'
+
+def create_csv_header(filename):
+    with open(filename, 'w') as csvfile:
+        writer = csv.writer(csvfile, dialect='excel')        
+        writer.writerow(FIELDNAMES)
+
+def append_to_csv(filename, data):
+    with open(filename, 'a') as csvfile:
+        writer = csv.writer(csvfile, dialect='excel')        
+        writer.writerow(data)
+
 
 def read_rs232_data(queue):
     serial_port = serial.Serial(port="/dev/ttyUSB0", baudrate=19200)
@@ -21,15 +58,17 @@ def read_rs232_data(queue):
 
         print(data)
 
-        # TODO: save data to csv for later analysis
-
         queue.put(data)
+
+        append_to_csv(CSV_FILENAME, data)
 
     # TODO: graceful exit
     serial_port.close()
 
 
 if __name__ == "__main__":
+
+    create_csv_header(CSV_FILENAME)
 
 # df = pd.DataFrame(
 #     columns=[
