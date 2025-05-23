@@ -149,7 +149,7 @@ if __name__ == "__main__":
         return line,
 
 
-    ani = animation.FuncAnimation(fig, update_plot, fetch_data, interval=60000, save_count=1000, blit=True)
+    ani = animation.FuncAnimation(fig, update_plot, fetch_data, interval=30000, save_count=1000, blit=True)
 
     plt.show()
 
