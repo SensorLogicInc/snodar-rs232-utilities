@@ -14,28 +14,6 @@ from time import sleep
 
 from snolog_parser import *
 
-FIELDNAMES = [
-    "Time",
-    "Current (mA)",
-    "Voltage (V)",
-    "NRF Temperature",
-    "PCB Temperature",
-    "IMU Temperature",
-    "IMU Roll",
-    "IMU Pitch",
-    "IMU Yaw",
-    "IMU Flag",
-    "Lidar SoC Temperature",
-    "Lidar PCB Temperature",
-    "Lidar Distance",
-    "Heater Enabled",
-    "Outside Temperature",
-    "Seasonal Snow Depth",
-    "Seasonal Snow Fall",
-    "New Snow Fall",
-    "DoY SWE",
-    "Temp SWE",
-]
 
 NUS_USA = "!USA\r".encode("utf-8")
 NUS_DISABLE_TIMER = "!PT0\r".encode("utf-8")
