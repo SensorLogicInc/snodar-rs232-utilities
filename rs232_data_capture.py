@@ -12,6 +12,8 @@ import sys
 import os
 from time import sleep
 
+from snolog_parser import parse_raw_snolog
+
 FIELDNAMES = [
     "Time",
     "Current (mA)",
@@ -91,9 +93,14 @@ def main(measurement_interval, read_delay):
 
     while True:
         trigger_lidar_conversion(serial_port)
+
         sleep(read_delay)
-        snolog = read_snolog(serial_port)
+        raw_snolog = read_snolog(serial_port)
+        # print(raw_snolog)
+
+        snolog = parse_raw_snolog(raw_snolog)
         print(snolog)
+
         sleep(measurement_interval - read_delay)
 
 
