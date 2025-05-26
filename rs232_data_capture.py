@@ -112,7 +112,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--measurement-interval", type=int, default=30, help="How often to take measurements"
+        "--measurement-interval",
+        type=int,
+        default=30,
+        help="How often to take measurements",
     )
     parser.add_argument(
         "--read-delay",
