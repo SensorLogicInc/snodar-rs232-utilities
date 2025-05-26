@@ -1,4 +1,5 @@
 import serial
+import argparse
 import pandas as pd
 import matplotlib
 import matplotlib.animation as animation
@@ -31,8 +32,6 @@ FIELDNAMES=[
         "Temp SWE",
 ]
 
-CSV_FILENAME='test.csv'
-
 def create_csv_header(filename):
     with open(filename, 'w') as csvfile:
         writer = csv.writer(csvfile, dialect='excel')        
@@ -44,7 +43,7 @@ def append_to_csv(filename, data):
         writer.writerow(data)
 
 
-def read_rs232_data(queue):
+def read_rs232_data(queue, csv_filename):
     serial_port = serial.Serial(port="/dev/ttyUSB0", baudrate=19200)
 
     while True:
@@ -60,44 +59,19 @@ def read_rs232_data(queue):
 
         queue.put(data)
 
-        append_to_csv(CSV_FILENAME, data)
+        append_to_csv(csv_filename, data)
 
     # TODO: graceful exit
     serial_port.close()
 
 
-if __name__ == "__main__":
+def main(csv_filename):
 
-    create_csv_header(CSV_FILENAME)
-
-# df = pd.DataFrame(
-#     columns=[
-#         "Time",
-#         "Current (mA)",
-#         "Voltage (V)",
-#         "NRF Temperature",
-#         "PCB Temperature",
-#         "IMU Temperature",
-#         "IMU Roll",
-#         "IMU Pitch",
-#         "IMU Yaw",
-#         "IMU Flag",
-#         "Lidar SoC Temperature",
-#         "Lidar PCB Temperature",
-#         "Lidar Distance",
-#         "Heater Enabled",
-#         "Outside Temperature",
-#         "Seasonal Snow Depth",
-#         "Seasonal Snow Fall",
-#         "New Snow Fall",
-#         "DoY SWE",
-#         "Temp SWE",
-#     ],
-# )
+    create_csv_header(csv_filename)
 
     queue = Queue()
 
-    rs232_thread = threading.Thread(target=read_rs232_data, args=(queue,))
+    rs232_thread = threading.Thread(target=read_rs232_data, args=(queue, csv_filename,))
     rs232_thread.start()
 
     fig, ax = plt.subplots()
@@ -153,7 +127,23 @@ if __name__ == "__main__":
 
     plt.show()
 
-    # while True:
-    #     if not queue.empty():
-    #         print(queue.get())
+
+def parse_args():
+
+    parser = argparse.ArgumentParser(
+        prog="SNOdar RS232 data logger",
+        description="Log and plot ASCII data over RS232"
+    )
+
+    parser.add_argument('csv', help="CSV filename to log data to")
+
+    args = parser.parse_args()
+
+    return args
+
+if __name__ == "__main__":
+
+    args = parse_args()
+
+    main(args.csv)
 
