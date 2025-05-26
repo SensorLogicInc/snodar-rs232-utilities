@@ -105,10 +105,11 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--measurement-interval", default=30, help="How often to take measurements"
+        "--measurement-interval", type=int, default=30, help="How often to take measurements"
     )
     parser.add_argument(
         "--read-delay",
+        type=int,
         default=15,
         help="How long to wait before reading snolog data after triggering a measurement",
     )
