@@ -46,11 +46,12 @@ class Snolog(NamedTuple):
     sc_daily_acc_sf: float  # 4 bytes
     health_flags_lo: int  # uint8, 1 byte
     health_flag_hi: int  # uint8, 1 byte
-    checksum: int  # 2 bytes
+    reserved: int  # 1 byte
+    checksum: int # uint8, 1 byte
 
 
 def parse_raw_snolog(raw_bytes):
-    unpacked = struct.unpack("=BBHLhhfffffffffBBbbfffHBbfffffflflflflfBBH", raw_bytes)
+    unpacked = struct.unpack("=BBHLhhfffffffffBBbbfffHBbfffffflflflflfBBBB", raw_bytes)
 
     snolog = Snolog(*unpacked)
     return snolog
