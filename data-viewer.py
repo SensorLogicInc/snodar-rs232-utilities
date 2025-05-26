@@ -8,6 +8,9 @@ from matplotlib import pyplot as plt
 from queue import Queue
 import threading
 import csv
+import signal
+import sys
+import os
 
 FIELDNAMES=[
         "Time",
@@ -32,6 +35,23 @@ FIELDNAMES=[
         "Temp SWE",
 ]
 
+interrupted = False
+
+def sigint_handler(sig, frame):
+    global interrupted
+    interrupted = True
+
+    sigint_handler.sigint_count += 1
+
+    if sigint_handler.sigint_count == 1:
+        print("\nTerminating. Waiting to collect last data packet...")
+        print("Send SIGINT again to terminate immediately")
+    else:
+        # use os._exit() to exit immediately without cleaning up and waiting for the thread to join.
+        os._exit(1)
+
+sigint_handler.sigint_count = 0
+
 def create_csv_header(filename):
     with open(filename, 'w') as csvfile:
         writer = csv.writer(csvfile, dialect='excel')        
@@ -44,9 +64,10 @@ def append_to_csv(filename, data):
 
 
 def read_rs232_data(queue, csv_filename):
+    global interrupted
     serial_port = serial.Serial(port="/dev/ttyUSB0", baudrate=19200)
 
-    while True:
+    while not interrupted:
         raw_bytes = serial_port.readline()
 
         csv_string = raw_bytes.decode()
@@ -61,11 +82,13 @@ def read_rs232_data(queue, csv_filename):
 
         append_to_csv(csv_filename, data)
 
-    # TODO: graceful exit
     serial_port.close()
 
 
 def main(csv_filename):
+    global interrupted
+
+    signal.signal(signal.SIGINT, sigint_handler)
 
     create_csv_header(csv_filename)
 
@@ -126,6 +149,13 @@ def main(csv_filename):
     ani = animation.FuncAnimation(fig, update_plot, fetch_data, interval=5000, save_count=1000, blit=True)
 
     plt.show()
+
+    # plt.show() is blocking, so this will never run until the plot window is closed
+    # This will happen when sigint is sent or when the plot window is closed.
+    # When the plot window is closed, the program will still keep running indefinitely
+    # because the thread will never finish and join.
+    rs232_thread.join()
+    sys.exit(0)
 
 
 def parse_args():
