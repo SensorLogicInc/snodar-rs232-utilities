@@ -1,3 +1,4 @@
+import csv
 import struct
 from typing import NamedTuple
 
@@ -55,3 +56,15 @@ def parse_raw_snolog(raw_bytes):
 
     snolog = Snolog(*unpacked)
     return snolog
+
+
+def create_snolog_csv(filename):
+    with open(filename, 'w') as csv_file:
+        writer = csv.writer(csv_file, dialect="excel")
+        writer.writerow(Snolog._fields)
+
+
+def append_snolog_to_csv(filename, snolog):
+    with open(filename, 'a') as csv_file:
+        writer = csv.writer(csv_file, dialect="excel")
+        writer.writerow(snolog)

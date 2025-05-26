@@ -12,7 +12,7 @@ import sys
 import os
 from time import sleep
 
-from snolog_parser import parse_raw_snolog
+from snolog_parser import *
 
 FIELDNAMES = [
     "Time",
@@ -84,12 +84,14 @@ def read_snolog(serial_port):
     return snolog
 
 
-def main(measurement_interval, read_delay):
+def main(csv_filename, measurement_interval=30, read_delay=15):
     global interrupted
 
     signal.signal(signal.SIGINT, sigint_handler)
 
     serial_port = serial.Serial(port="/dev/ttyUSB0", baudrate=19200)
+
+    create_snolog_csv(csv_filename)
 
     while True:
         trigger_lidar_conversion(serial_port)
@@ -101,6 +103,8 @@ def main(measurement_interval, read_delay):
         snolog = parse_raw_snolog(raw_snolog)
         print(snolog)
 
+        append_snolog_to_csv(csv_filename, snolog)
+
         sleep(measurement_interval - read_delay)
 
 
@@ -111,6 +115,7 @@ def parse_args():
         description="Log and plot snolog data over RS232",
     )
 
+    parser.add_argument("csv", help="Output CSV file name")
     parser.add_argument(
         "--measurement-interval",
         type=int,
@@ -133,4 +138,8 @@ if __name__ == "__main__":
 
     args = parse_args()
 
-    main(measurement_interval=args.measurement_interval, read_delay=args.read_delay)
+    main(
+        csv_filename=args.csv,
+        measurement_interval=args.measurement_interval,
+        read_delay=args.read_delay,
+    )
