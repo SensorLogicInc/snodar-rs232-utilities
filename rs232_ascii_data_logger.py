@@ -12,30 +12,31 @@ import signal
 import sys
 import os
 
-FIELDNAMES=[
-        "Time",
-        "Current (mA)",
-        "Voltage (V)",
-        "NRF Temperature",
-        "PCB Temperature",
-        "IMU Temperature",
-        "IMU Roll",
-        "IMU Pitch",
-        "IMU Yaw",
-        "IMU Flag",
-        "Lidar SoC Temperature",
-        "Lidar PCB Temperature",
-        "Lidar Distance",
-        "Heater Enabled",
-        "Outside Temperature",
-        "Seasonal Snow Depth",
-        "Seasonal Snow Fall",
-        "New Snow Fall",
-        "DoY SWE",
-        "Temp SWE",
+FIELDNAMES = [
+    "Time",
+    "Current (mA)",
+    "Voltage (V)",
+    "NRF Temperature",
+    "PCB Temperature",
+    "IMU Temperature",
+    "IMU Roll",
+    "IMU Pitch",
+    "IMU Yaw",
+    "IMU Flag",
+    "Lidar SoC Temperature",
+    "Lidar PCB Temperature",
+    "Lidar Distance",
+    "Heater Enabled",
+    "Outside Temperature",
+    "Seasonal Snow Depth",
+    "Seasonal Snow Fall",
+    "New Snow Fall",
+    "DoY SWE",
+    "Temp SWE",
 ]
 
 interrupted = False
+
 
 def sigint_handler(sig, frame):
     global interrupted
@@ -50,16 +51,19 @@ def sigint_handler(sig, frame):
         # use os._exit() to exit immediately without cleaning up and waiting for the thread to join.
         os._exit(1)
 
+
 sigint_handler.sigint_count = 0
 
+
 def create_csv_header(filename):
-    with open(filename, 'w') as csvfile:
-        writer = csv.writer(csvfile, dialect='excel')        
+    with open(filename, "w") as csvfile:
+        writer = csv.writer(csvfile, dialect="excel")
         writer.writerow(FIELDNAMES)
 
+
 def append_to_csv(filename, data):
-    with open(filename, 'a') as csvfile:
-        writer = csv.writer(csvfile, dialect='excel')        
+    with open(filename, "a") as csvfile:
+        writer = csv.writer(csvfile, dialect="excel")
         writer.writerow(data)
 
 
@@ -94,11 +98,17 @@ def main(csv_filename):
 
     queue = Queue()
 
-    rs232_thread = threading.Thread(target=read_rs232_data, args=(queue, csv_filename,))
+    rs232_thread = threading.Thread(
+        target=read_rs232_data,
+        args=(
+            queue,
+            csv_filename,
+        ),
+    )
     rs232_thread.start()
 
     fig, ax = plt.subplots()
-    line, = ax.plot([], [], '-o')
+    (line,) = ax.plot([], [], "-o")
 
     # Automatically format datetimes on the x-axis
     locator = matplotlib.dates.AutoDateLocator()
@@ -121,7 +131,7 @@ def main(csv_filename):
         if not queue.empty():
             data = queue.get()
             # TODO: enum instead of hardcoding
-            timestamp = data[0] 
+            timestamp = data[0]
             snowdepth = data[15]
 
             yield timestamp, snowdepth
@@ -142,11 +152,12 @@ def main(csv_filename):
             ax.relim()
             ax.autoscale_view()
             ax.figure.canvas.draw()
-        
-        return line,
 
+        return (line,)
 
-    ani = animation.FuncAnimation(fig, update_plot, fetch_data, interval=5000, save_count=1000, blit=True)
+    ani = animation.FuncAnimation(
+        fig, update_plot, fetch_data, interval=5000, save_count=1000, blit=True
+    )
 
     plt.show()
 
@@ -162,18 +173,18 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
         prog="SNOdar RS232 data logger",
-        description="Log and plot ASCII data over RS232"
+        description="Log and plot ASCII data over RS232",
     )
 
-    parser.add_argument('csv', help="CSV filename to log data to")
+    parser.add_argument("csv", help="CSV filename to log data to")
 
     args = parser.parse_args()
 
     return args
+
 
 if __name__ == "__main__":
 
     args = parse_args()
 
     main(args.csv)
-
