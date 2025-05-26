@@ -62,16 +62,14 @@ def read_snolog(serial_port):
     return snolog
 
 
-def main(csv_filename, measurement_interval=30, read_delay=15):
+def lidar_control(csv_filename, measurement_interval, read_delay, queue):
     global interrupted
-
-    signal.signal(signal.SIGINT, sigint_handler)
 
     serial_port = serial.Serial(port="/dev/ttyUSB0", baudrate=19200)
 
     create_snolog_csv(csv_filename)
 
-    while True:
+    while not interrupted:
         trigger_lidar_conversion(serial_port)
 
         sleep(read_delay)
@@ -83,7 +81,91 @@ def main(csv_filename, measurement_interval=30, read_delay=15):
 
         append_snolog_to_csv(csv_filename, snolog)
 
+        # Send timestampe and distance data back to the main thread for plotting
+        queue.put(snolog.unix_time)
+        queue.put(snolog.lidar_raw_distance)
+
         sleep(measurement_interval - read_delay)
+
+    serial_port.close()
+
+
+def main(csv_filename, measurement_interval=30, read_delay=15):
+    global interrupted
+
+    signal.signal(signal.SIGINT, sigint_handler)
+
+    queue = Queue(maxsize=2)
+
+    lidar_control_thread = threading.Thread(
+        target=lidar_control,
+        args=(
+            csv_filename,
+            measurement_interval,
+            read_delay,
+            queue,
+        ),
+    )
+    lidar_control_thread.start()
+
+    fig, ax = plt.subplots()
+    (line,) = ax.plot([], [], "-o")
+
+    # Automatically format datetimes on the x-axis
+    locator = matplotlib.dates.AutoDateLocator()
+    formatter = matplotlib.dates.AutoDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter)
+    ax.xaxis.set_tick_params(rotation=30)
+
+    plt.xlabel("Time")
+    plt.ylabel("Distance (m)")
+
+    # Add padding so the x-axis label doesn't get cut off due to the rotated
+    # tick labels.
+    plt.subplots_adjust(bottom=0.18)
+
+    xdata = []
+    ydata = []
+
+    def fetch_data():
+        if queue.full():
+            timestamp = queue.get()
+            distance = queue.get()
+
+            yield timestamp, distance
+        else:
+            yield None
+
+    def update_plot(frame):
+        if frame:
+            timestamp = datetime.fromtimestamp(frame[0])
+            distance = frame[1]
+
+            xdata.append(timestamp)
+            ydata.append(distance)
+
+            line.set_data(xdata, ydata)
+
+            # Automatically resize figure based upon data limits
+            ax.relim()
+            ax.autoscale_view()
+            ax.figure.canvas.draw()
+
+        return (line,)
+
+    ani = animation.FuncAnimation(
+        fig, update_plot, fetch_data, interval=1000, save_count=1000, blit=True
+    )
+
+    plt.show()
+
+    # plt.show() is blocking, so this will never run until the plot window is closed
+    # This will happen when sigint is sent or when the plot window is closed.
+    # When the plot window is closed, the program will still keep running indefinitely
+    # because the thread will never finish and join.
+    lidar_control_thread.join()
+    sys.exit(0)
 
 
 def parse_args():
