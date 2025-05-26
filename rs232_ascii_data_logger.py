@@ -1,16 +1,15 @@
 import serial
 import argparse
-import pandas as pd
-import matplotlib
-import matplotlib.animation as animation
-from datetime import datetime
-from matplotlib import pyplot as plt
-from queue import Queue
 import threading
 import csv
 import signal
 import sys
 import os
+import matplotlib
+import matplotlib.animation as animation
+from datetime import datetime
+from matplotlib import pyplot as plt
+from queue import Queue
 
 FIELDNAMES = [
     "Time",
