@@ -83,7 +83,7 @@ def lidar_control(csv_filename, measurement_interval, read_delay, queue):
 
         # Send timestampe and distance data back to the main thread for plotting
         queue.put(snolog.unix_time)
-        queue.put(snolog.lidar_raw_distance)
+        queue.put(snolog.seasonal_snow_depth)
 
         sleep(measurement_interval - read_delay)
 
@@ -119,7 +119,7 @@ def main(csv_filename, measurement_interval=30, read_delay=15):
     ax.xaxis.set_tick_params(rotation=30)
 
     plt.xlabel("Time")
-    plt.ylabel("Distance (m)")
+    plt.ylabel("Depth (m)")
 
     # Add padding so the x-axis label doesn't get cut off due to the rotated
     # tick labels.
@@ -131,19 +131,19 @@ def main(csv_filename, measurement_interval=30, read_delay=15):
     def fetch_data():
         if queue.full():
             timestamp = queue.get()
-            distance = queue.get()
+            snow_depth = queue.get()
 
-            yield timestamp, distance
+            yield timestamp, snow_depth
         else:
             yield None
 
     def update_plot(frame):
         if frame:
             timestamp = datetime.fromtimestamp(frame[0])
-            distance = frame[1]
+            snow_dpeth = frame[1]
 
             xdata.append(timestamp)
-            ydata.append(distance)
+            ydata.append(snow_dpeth)
 
             line.set_data(xdata, ydata)
 
