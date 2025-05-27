@@ -49,7 +49,7 @@ class Snolog(NamedTuple):
     health_flags_lo: int  # uint8, 1 byte
     health_flag_hi: int  # uint8, 1 byte
     reserved: int  # 1 byte
-    checksum: int # uint8, 1 byte
+    checksum: int  # uint8, 1 byte
 
 
 def parse_raw_snolog(raw_bytes):
@@ -60,39 +60,42 @@ def parse_raw_snolog(raw_bytes):
 
 
 def create_snolog_csv(filename):
-    with open(filename, 'w') as csv_file:
+    with open(filename, "w") as csv_file:
         writer = csv.writer(csv_file, dialect="excel")
         writer.writerow(Snolog._fields)
 
 
 def append_snolog_to_csv(filename, snolog):
-    with open(filename, 'a') as csv_file:
+    with open(filename, "a") as csv_file:
         writer = csv.writer(csv_file, dialect="excel")
         writer.writerow(snolog)
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Convert a list of snologs in hex into a csv file")
-    parser.add_argument('hex_file', help="input hex file log")
-    parser.add_argument('csv_file', help="output csv file")
+    parser = argparse.ArgumentParser(
+        description="Convert a list of snologs in hex into a csv file"
+    )
+    parser.add_argument("hex_file", help="input hex file log")
+    parser.add_argument("csv_file", help="output csv file")
 
     args = parser.parse_args()
 
     snolog_entries = []
 
-    with open(args.hex_file, 'rb') as hex_file:
+    with open(args.hex_file, "rb") as hex_file:
         is_eof_reached = False
         while not is_eof_reached:
             raw_bytes = hex_file.read(128)
 
             if not raw_bytes:
-                print('asdf')
+                print("asdf")
                 is_eof_reached = True
             else:
                 snolog = parse_raw_snolog(raw_bytes)
                 print(snolog)
                 snolog_entries.append(snolog)
-    
-    with open(args.csv_file, 'w') as csv_file:
+
+    with open(args.csv_file, "w") as csv_file:
         writer = csv.writer(csv_file, dialect="excel")
 
         writer.writerow(Snolog._fields)
