@@ -62,10 +62,10 @@ def read_snolog(serial_port):
     return snolog
 
 
-def lidar_control(csv_filename, measurement_interval, read_delay, queue):
+def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, queue):
     global interrupted
 
-    serial_port = serial.Serial(port="/dev/ttyUSB0", baudrate=19200)
+    serial_port = serial.Serial(port=serial_port, baudrate=19200)
 
     create_snolog_csv(csv_filename)
 
@@ -90,7 +90,7 @@ def lidar_control(csv_filename, measurement_interval, read_delay, queue):
     serial_port.close()
 
 
-def main(csv_filename, measurement_interval=30, read_delay=15):
+def main(serial_port, csv_filename, measurement_interval=30, read_delay=15):
     global interrupted
 
     signal.signal(signal.SIGINT, sigint_handler)
@@ -100,6 +100,7 @@ def main(csv_filename, measurement_interval=30, read_delay=15):
     lidar_control_thread = threading.Thread(
         target=lidar_control,
         args=(
+            serial_port,
             csv_filename,
             measurement_interval,
             read_delay,
@@ -175,6 +176,7 @@ def parse_args():
         description="Log and plot snolog data over RS232",
     )
 
+    parser.add_argument("serial_port", help="Serial port number, e.g., /dev/ttyUSB0, COM7")
     parser.add_argument("csv", help="Output CSV file name")
     parser.add_argument(
         "--measurement-interval",
@@ -199,6 +201,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     main(
+        serial_port=args.serial_port,
         csv_filename=args.csv,
         measurement_interval=args.measurement_interval,
         read_delay=args.read_delay,
