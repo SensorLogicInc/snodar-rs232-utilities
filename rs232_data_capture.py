@@ -50,6 +50,12 @@ def append_to_csv(filename, data):
         writer.writerow(data)
 
 
+def disable_automated_measurement_timer(serial_port):
+    nbytes = serial_port.write(NUS_DISABLE_TIMER)
+    if nbytes != len(NUS_DISABLE_TIMER):
+        print("something went wrong...?")
+
+
 def trigger_lidar_conversion(serial_port):
     nbytes = serial_port.write(NUS_USA)
     if nbytes != 5:
@@ -170,13 +176,14 @@ def main(serial_port, csv_filename, measurement_interval=30, read_delay=15):
 
 
 def parse_args():
-
     parser = argparse.ArgumentParser(
         prog="SNOdar RS232 snolog data logger",
         description="Log and plot snolog data over RS232",
     )
 
-    parser.add_argument("serial_port", help="Serial port number, e.g., /dev/ttyUSB0, COM7")
+    parser.add_argument(
+        "serial_port", help="Serial port number, e.g., /dev/ttyUSB0, COM7"
+    )
     parser.add_argument("csv", help="Output CSV file name")
     parser.add_argument(
         "--measurement-interval",
@@ -197,7 +204,6 @@ def parse_args():
 
 
 if __name__ == "__main__":
-
     args = parse_args()
 
     main(

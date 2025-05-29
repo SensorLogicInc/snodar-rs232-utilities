@@ -169,7 +169,6 @@ def main(csv_filename):
 
 
 def parse_args():
-
     parser = argparse.ArgumentParser(
         prog="SNOdar RS232 data logger",
         description="Log and plot ASCII data over RS232",
@@ -183,7 +182,6 @@ def parse_args():
 
 
 if __name__ == "__main__":
-
     args = parse_args()
 
     main(args.csv)
