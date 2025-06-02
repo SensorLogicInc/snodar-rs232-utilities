@@ -12,7 +12,7 @@ import sys
 import os
 from time import sleep
 
-from snolog_parser import *
+from snolog_parser import create_snolog_csv, append_snolog_to_csv
 
 
 NUS_USA = "!USA\r".encode("utf-8")
