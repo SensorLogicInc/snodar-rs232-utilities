@@ -94,35 +94,47 @@ def append_snolog_to_csv(filename, snolog):
         writer = csv.writer(csv_file, dialect="excel")
         writer.writerow(snolog)
 
+def parse_hex_file(hex_filename, csv_filename):
+    """Convert a hex file containing snolog packets into a csv file.
+
+    Args:
+        hex_filename: Input log file. This file should be a binary file containing
+            the raw, unparsed snolog data.
+        csv_filename: The csv file to save the parsed data to.
+    """
+    SNOLOG_SIZE = 128
+
+    snolog_entries = []
+
+    with open(hex_filename, "rb") as hex_file:
+        is_eof_reached = False
+        while not is_eof_reached:
+            raw_bytes = hex_file.read(SNOLOG_SIZE)
+
+            if len(raw_bytes) == SNOLOG_SIZE:
+                snolog = parse_raw_snolog(raw_bytes)
+                print(snolog)
+                snolog_entries.append(snolog)
+            else:
+                is_eof_reached = True
+
+    with open(csv_filename, "w") as csv_file:
+        writer = csv.writer(csv_file, dialect="excel")
+
+        # Write header
+        writer.writerow(Snolog._fields)
+
+        for snolog in snolog_entries:
+            writer.writerow(snolog)
 
 if __name__ == "__main__":
+    """Convert a hex file containing snolog packets into a csv file."""
     parser = argparse.ArgumentParser(
-        description="Convert a list of snologs in hex into a csv file"
+        description="Convert raw snologs in hex into a csv file"
     )
     parser.add_argument("hex_file", help="input hex file log")
     parser.add_argument("csv_file", help="output csv file")
 
     args = parser.parse_args()
 
-    snolog_entries = []
-
-    with open(args.hex_file, "rb") as hex_file:
-        is_eof_reached = False
-        while not is_eof_reached:
-            raw_bytes = hex_file.read(128)
-
-            if not raw_bytes:
-                print("asdf")
-                is_eof_reached = True
-            else:
-                snolog = parse_raw_snolog(raw_bytes)
-                print(snolog)
-                snolog_entries.append(snolog)
-
-    with open(args.csv_file, "w") as csv_file:
-        writer = csv.writer(csv_file, dialect="excel")
-
-        writer.writerow(Snolog._fields)
-
-        for snolog in snolog_entries:
-            writer.writerow(snolog)
+    parse_hex_file(args.hex_file, args.csv_file)
