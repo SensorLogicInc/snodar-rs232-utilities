@@ -15,7 +15,6 @@ from snolog_parser import create_snolog_csv, append_snolog_to_csv
 
 
 NUS_USA = "!USA\r".encode("utf-8")
-NUS_DISABLE_TIMER = "!PT0\r".encode("utf-8")
 
 interrupted = False
 
@@ -35,13 +34,6 @@ def sigint_handler(sig, frame):
 
 
 sigint_handler.sigint_count = 0
-
-
-def disable_automated_measurement_timer(serial_port):
-    nbytes = serial_port.write(NUS_DISABLE_TIMER)
-    if nbytes != len(NUS_DISABLE_TIMER):
-        print("something went wrong...?")
-
 
 def trigger_lidar_conversion(serial_port):
     nbytes = serial_port.write(NUS_USA)
