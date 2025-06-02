@@ -214,7 +214,7 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(
         prog="SNOdar RS232 snolog data logger",
-        description="Log and plot snolog data over RS232",
+        description="Manually trigger lidar measurements at a specified interval, then log and plot snolog data. This program is designed for SNOdars that are configured in 'manual' mode.",
     )
 
     parser.add_argument(
@@ -225,13 +225,13 @@ def parse_args():
         "--measurement-interval",
         type=int,
         default=30,
-        help="How often to take measurements",
+        help="How often to take measurements. Default = 30 seconds",
     )
     parser.add_argument(
         "--read-delay",
         type=int,
         default=0,
-        help="How long to wait before reading snolog data after triggering a measurement",
+        help="How long to wait before reading snolog data after triggering a measurement. Default = 0 seconds",
     )
 
     args = parser.parse_args()
