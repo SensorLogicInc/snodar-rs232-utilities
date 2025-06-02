@@ -20,6 +20,15 @@ interrupted = False
 
 
 def sigint_handler(sig, frame):
+    """Handle SIGINT (Ctrl+C) to terminate the program gracefully.
+
+    Sets a global flag to signal termination. The second SIGINT will
+    exit immediately without waiting for the thread to finish.
+
+    Args:
+        sig: The signal number.
+        frame: The current stack frame (unused).
+    """
     global interrupted
     interrupted = True
 
@@ -35,19 +44,47 @@ def sigint_handler(sig, frame):
 
 sigint_handler.sigint_count = 0
 
+
 def trigger_lidar_conversion(serial_port):
+    """Trigger a lidar measurement on the device.
+
+    Sends the !USA to the serial port to initiate a measurement.
+
+    Args:
+        serial_port: The serial port object.
+    """
     nbytes = serial_port.write(NUS_USA)
     if nbytes != 5:
         print("something went wrong...?")
 
 
 def read_snolog(serial_port):
+    """Read a SNOLog packet from the serial port.
+
+    Args:
+        serial_port: The serial port object.
+
+    Returns:
+        snolog: The raw SNOLog data read from the port.
+    """
     snolog = serial_port.read(128)
 
     return snolog
 
 
 def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, queue):
+    """Control the lidar measurement and data logging.
+
+    Runs in a separate thread to handle serial communication, data parsing,
+    and CSV logging. Sends timestamp and snow depth data to the main thread for plotting.
+
+    Args:
+        serial_port: The serial port device (e.g., "/dev/ttyUSB0", "COM1").
+        csv_filename: Path to the output CSV file.
+        measurement_interval: Seconds between measurements.
+        read_delay: Delay before reading after triggering a measurement.
+        queue: A thread-safe queue to pass data to the main thread.
+    """
     global interrupted
 
     serial_port = serial.Serial(port=serial_port, baudrate=19200)
@@ -76,6 +113,17 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
 
 
 def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
+    """Main entry point for the application.
+
+    Sets up signal handling, starts the lidar control thread, and initializes
+    the real-time plotting interface.
+
+    Args:
+        serial_port: The serial port device (e.g., "/dev/ttyUSB0", "COM1").
+        csv_filename: Path to the output CSV file.
+        measurement_interval: Seconds between measurements.
+        read_delay: Delay before reading after triggering a measurement.
+    """
     global interrupted
 
     signal.signal(signal.SIGINT, sigint_handler)
@@ -155,6 +203,15 @@ def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
 
 
 def parse_args():
+    """Parse command-line arguments.
+
+    Returns:
+        args: Parsed arguments with the following attributes:
+            - serial_port: Serial port device (e.g., "/dev/ttyUSB0").
+            - csv: Path to the output CSV file.
+            - measurement_interval: Time (seconds) between measurements.
+            - read_delay: Delay (seconds) before reading snolog data after triggering a measurement.
+    """
     parser = argparse.ArgumentParser(
         prog="SNOdar RS232 snolog data logger",
         description="Log and plot snolog data over RS232",
