@@ -15,10 +15,10 @@ class Snolog(NamedTuple):
     power_V: int  # int16, 2 bytes
     pcb_temperature: float  # 4 bytes, deg C
     imu_temperature: float  # 4 bytes, deg C
-    imu_quaternian0: float  # 4 bytes, versors
-    imu_quaternian1: float  # 4 bytes, versors
-    imu_quaternian2: float  # 4 bytes, versors
-    imu_quaternian3: float  # 4 bytes, versors
+    imu_quaternian0: float  # 4 bytes
+    imu_quaternian1: float  # 4 bytes
+    imu_quaternian2: float  # 4 bytes
+    imu_quaternian3: float  # 4 bytes
     imu_roll: float  # 4 bytes, radians
     imu_pitch: float  # 4 bytes, radians
     imu_yaw: float  # 4 bytes, radians
