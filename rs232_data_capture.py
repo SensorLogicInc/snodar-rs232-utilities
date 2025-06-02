@@ -75,7 +75,7 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
     serial_port.close()
 
 
-def main(serial_port, csv_filename, measurement_interval=30, read_delay=15):
+def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
     global interrupted
 
     signal.signal(signal.SIGINT, sigint_handler)
@@ -173,7 +173,7 @@ def parse_args():
     parser.add_argument(
         "--read-delay",
         type=int,
-        default=15,
+        default=0,
         help="How long to wait before reading snolog data after triggering a measurement",
     )
 
