@@ -5,7 +5,7 @@ from typing import NamedTuple
 
 
 class Snolog(NamedTuple):
-    """NamedTuple for snolog logs"""
+    """NamedTuple for snolog packets"""
 
     id: int  # uint8, 1 byte
     version: int  # uint8, 1 byte
@@ -53,6 +53,14 @@ class Snolog(NamedTuple):
 
 
 def parse_raw_snolog(raw_bytes):
+    """Parse the bytes in a raw snolog packet.
+
+    Args:
+        raw_bytes: The raw snolog packet.
+
+    Returns:
+        snolog: A Snolog object containing the parsed data.
+    """
     unpacked = struct.unpack("=BBHLhhfffffffffBBbbfffHBbfffffflflflflfBBBB", raw_bytes)
 
     snolog = Snolog(*unpacked)
@@ -60,12 +68,28 @@ def parse_raw_snolog(raw_bytes):
 
 
 def create_snolog_csv(filename):
+    """Create a csv file to save snolog data to.
+
+    This only creates the file and writes the csv header. Use `append_snolog_to_csv`
+    to write packets to the csv log file.
+
+    Args:
+        filename: The csv file name.
+    """
     with open(filename, "w") as csv_file:
         writer = csv.writer(csv_file, dialect="excel")
         writer.writerow(Snolog._fields)
 
 
 def append_snolog_to_csv(filename, snolog):
+    """Write a snolog packet to a csv file.
+
+    This appends the snolog packet to the end of the given csv file.
+
+    Args:
+        filename: The csv file name.
+        snolog: A Snolog object.
+    """
     with open(filename, "a") as csv_file:
         writer = csv.writer(csv_file, dialect="excel")
         writer.writerow(snolog)
