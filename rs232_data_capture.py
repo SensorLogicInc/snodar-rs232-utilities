@@ -1,7 +1,8 @@
-"""Trigger lidar measurements and capture the resulting snolog data.
+"""Trigger lidar measurements and capture the resulting snolog data via RS-232.
 
-This module provides a CLI program for manually trigger lidar measurements
-at a set interval and saving the snolog data to a csv.
+This module provides a CLI program for manually triggering lidar measurements
+at a set interval and saving the snolog data to a csv. Distance data is plotted
+in real-time.
 
 Usage:
     Basic usage (30-second measurement interval):
@@ -221,7 +222,10 @@ def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
         fig, update_plot, fetch_data, interval=1000, save_count=1000, blit=True
     )
 
-    plt.show()
+    plt.show(block=False)
+
+    while not interrupted:
+        plt.pause(5)
 
     # plt.show() is blocking, so this will never run until the plot window is closed
     # This will happen when sigint is sent or when the plot window is closed.
