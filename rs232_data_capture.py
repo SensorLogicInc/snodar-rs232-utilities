@@ -1,18 +1,18 @@
 import argparse
-import threading
+import os
 import signal
 import sys
-import os
-import serial
-import matplotlib
-import matplotlib.animation as animation
+import threading
 from datetime import datetime
-from matplotlib import pyplot as plt
 from queue import Queue
 from time import sleep
 
-from snolog_parser import create_snolog_csv, append_snolog_to_csv
+import matplotlib
+import matplotlib.animation as animation
+import serial
+from matplotlib import pyplot as plt
 
+from snolog_parser import append_snolog_to_csv, create_snolog_csv
 
 NUS_USA = "!USA\r".encode("utf-8")
 
