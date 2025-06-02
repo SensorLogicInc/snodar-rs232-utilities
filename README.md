@@ -44,8 +44,9 @@ These utilities require pyserial for serial communication and matplotlib for plo
    ```
    pip install .
    ```
-   > [!IMPORTANT]
-   > You must be in the `snodar-rs232-utilities` directory when running `pip install .`
+   
+> [!IMPORTANT]
+> You must be in the `snodar-rs232-utilities` directory when running `pip install .`
 
 #### uv
 
