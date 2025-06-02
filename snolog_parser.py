@@ -28,7 +28,7 @@ class Snolog(NamedTuple):
     lidar_pcb_temperature: int  # int8, 1 bytes, deg C
     lidar_raw_distance: float  # 4 bytes, meters
     lidar_doff_distance: float  # 4 bytes, meters
-    lidat_tc_distance: float  # 4 bytes, meters
+    lidar_tc_distance: float  # 4 bytes, meters
     lidar_meas_time: int  # uint16, 2 bytes, seconds
     lidar_status: int  # uint8, 1 byte
     nrf_temperature: int  # int8, 1 byte, deg C
