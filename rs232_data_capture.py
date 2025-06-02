@@ -14,7 +14,6 @@ from matplotlib import pyplot as plt
 
 from snolog_parser import append_snolog_to_csv, create_snolog_csv, parse_raw_snolog
 
-NUS_USA = "!USA\r".encode("utf-8")
 
 interrupted = False
 
@@ -53,6 +52,11 @@ def trigger_lidar_conversion(serial_port):
     Args:
         serial_port: The serial port object.
     """
+    # Command for triggering a lidar measurement. The SNOdar expects commands to end with
+    # a carriage return. Pyserial expects the string to be encoding as raw bytes, so
+    # we encode it as a utf-8 string into a bytes object.
+    NUS_USA = "!USA\r".encode("utf-8")
+
     nbytes = serial_port.write(NUS_USA)
     if nbytes != 5:
         print("something went wrong...?")
