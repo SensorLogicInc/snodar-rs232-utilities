@@ -1,0 +1,7 @@
+[project]
+name = "snodar-rs232-utilities"
+version = "0.1.0"
+description = "RS232 SNOdar data logging utilities"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["pyserial", "matplotlib"]
