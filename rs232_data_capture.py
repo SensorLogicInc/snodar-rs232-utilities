@@ -131,7 +131,7 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
 
         append_snolog_to_csv(csv_filename, snolog)
 
-        # Send timestampe and distance data back to the main thread for plotting
+        # Send timestamp and distance data back to the main thread for plotting
         queue.put(snolog.unix_time)
         queue.put(snolog.lidar_tc_distance)
 
