@@ -1,15 +1,31 @@
-import serial
+"""Record ASCII SNOdar data via RS-232
+
+This module implements a data logger for ASCII data received over RS-232 serial
+communication. It logs data to CSV files and provides real-time visualization
+using matplotlib.
+
+This module assumes that the SNOdar sensor is configured in "snow depth" mode, has
+RS-232 TX enabled in ASCII mode, and the unit is configured to make periodic measurements.
+
+Usage:
+    ```
+    python rs232_ascii_data_logger.py COM3 output.csv
+    ```
+"""
+
 import argparse
-import threading
 import csv
+import os
 import signal
 import sys
-import os
+import threading
+from datetime import datetime
+from queue import Queue
+
 import matplotlib
 import matplotlib.animation as animation
-from datetime import datetime
+import serial
 from matplotlib import pyplot as plt
-from queue import Queue
 
 FIELDNAMES = [
     "Time",
@@ -38,6 +54,15 @@ interrupted = False
 
 
 def sigint_handler(sig, frame):
+    """Handle SIGINT (Ctrl+C) to terminate the program gracefully.
+
+    Sets a global flag to signal termination. The second SIGINT will
+    exit immediately without waiting for the thread to finish.
+
+    Args:
+        sig: The signal number.
+        frame: The current stack frame (unused).
+    """
     global interrupted
     interrupted = True
 
@@ -55,28 +80,55 @@ sigint_handler.sigint_count = 0
 
 
 def create_csv_header(filename):
+    """Create a csv file to save ASCII log data to.
+
+    This only creates  the file and writes the CSV header. Use
+    `append_to_csv` to write data to the csv log file.
+
+    Args:
+        filename: The csv file name.
+    """
     with open(filename, "w") as csvfile:
         writer = csv.writer(csvfile, dialect="excel")
         writer.writerow(FIELDNAMES)
 
 
 def append_to_csv(filename, data):
+    """Write a row of data to the csv file.
+
+    This appends the data to the end of the given csv file.
+
+    Args:
+        filename: The csv file name.
+        data: List of snolog data values.
+    """
     with open(filename, "a") as csvfile:
         writer = csv.writer(csvfile, dialect="excel")
         writer.writerow(data)
 
 
-def read_rs232_data(queue, csv_filename):
+def read_rs232_data(serial_port, csv_filename, queue):
+    """Read ASCII data over RS-232.
+
+    This function runs in a separate thread to allow the serial
+    communication and plotting to co-exist nicely. The received data
+    is sent to the main thread for plotting and saving.
+
+    Args:
+        serial_port: The serial port device (e.g., "/dev/ttyUSB0", "COM1").
+        csv_filename: Path to the output CSV file.
+        queue: A thread-safe queue used to pass data to the main thread.
+    """
     global interrupted
-    serial_port = serial.Serial(port="/dev/ttyUSB0", baudrate=19200)
+    serial_port = serial.Serial(port=serial_port, baudrate=19200)
 
     while not interrupted:
+        # Read ASCII string from serial port
         raw_bytes = serial_port.readline()
-
         csv_string = raw_bytes.decode()
 
+        # Convert string into list of numbers
         csv_list = csv_string.strip().split(",")
-
         data = [float(x) for x in csv_list]
 
         print(data)
@@ -88,7 +140,13 @@ def read_rs232_data(queue, csv_filename):
     serial_port.close()
 
 
-def main(csv_filename):
+def main(serial_port, csv_filename):
+    """Main entry point for the application.
+
+    Args:
+        serial_port: The serial port device (e.g., "/dev/ttyUSB0", "COM1").
+        csv_filename: Path to the output CSV file.
+    """
     global interrupted
 
     signal.signal(signal.SIGINT, sigint_handler)
@@ -100,8 +158,9 @@ def main(csv_filename):
     rs232_thread = threading.Thread(
         target=read_rs232_data,
         args=(
-            queue,
+            serial_port,
             csv_filename,
+            queue,
         ),
     )
     rs232_thread.start()
@@ -117,7 +176,7 @@ def main(csv_filename):
     ax.xaxis.set_tick_params(rotation=30)
 
     plt.xlabel("Time")
-    plt.ylabel("Snow Depth (m)")
+    plt.ylabel("Distance (m)")
 
     # Add padding so the x-axis label doesn't get cut off due to the rotated
     # tick labels.
@@ -131,19 +190,19 @@ def main(csv_filename):
             data = queue.get()
             # TODO: enum instead of hardcoding
             timestamp = data[0]
-            snowdepth = data[15]
+            distance = data[12]
 
-            yield timestamp, snowdepth
+            yield timestamp, distance
         else:
             yield None
 
     def update_plot(frame):
         if frame:
             timestamp = datetime.fromtimestamp(frame[0])
-            snowdepth = frame[1]
+            distance = frame[1]
 
             xdata.append(timestamp)
-            ydata.append(snowdepth)
+            ydata.append(distance)
 
             line.set_data(xdata, ydata)
 
@@ -155,7 +214,7 @@ def main(csv_filename):
         return (line,)
 
     ani = animation.FuncAnimation(
-        fig, update_plot, fetch_data, interval=5000, save_count=1000, blit=True
+        fig, update_plot, fetch_data, interval=1000, save_count=1000, blit=True
     )
 
     plt.show()
@@ -169,11 +228,21 @@ def main(csv_filename):
 
 
 def parse_args():
+    """Parse command-line arguments
+
+    Returns:
+        args: Parsed arguments with the following attributes:
+            - serial_port: Serial port device (e.g., "/dev/ttyUSB0").
+            - csv: Path to the output CSV file.
+    """
     parser = argparse.ArgumentParser(
-        prog="SNOdar RS232 data logger",
+        prog="SNOdar RS232 ASCII data logger",
         description="Log and plot ASCII data over RS232",
     )
 
+    parser.add_argument(
+        "serial_port", help="Serial port number, e.g., /dev/ttyUSB0, COM7"
+    )
     parser.add_argument("csv", help="CSV filename to log data to")
 
     args = parser.parse_args()
@@ -184,4 +253,4 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    main(args.csv)
+    main(args.serial_port, args.csv)
