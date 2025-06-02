@@ -6,7 +6,6 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 from queue import Queue
 import threading
-import csv
 import signal
 import sys
 import os
