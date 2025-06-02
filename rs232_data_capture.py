@@ -1,14 +1,14 @@
-import serial
 import argparse
+import threading
+import signal
+import sys
+import os
+import serial
 import matplotlib
 import matplotlib.animation as animation
 from datetime import datetime
 from matplotlib import pyplot as plt
 from queue import Queue
-import threading
-import signal
-import sys
-import os
 from time import sleep
 
 from snolog_parser import create_snolog_csv, append_snolog_to_csv
