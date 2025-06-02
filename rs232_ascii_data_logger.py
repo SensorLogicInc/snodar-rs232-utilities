@@ -56,8 +56,7 @@ interrupted = False
 def sigint_handler(sig, frame):
     """Handle SIGINT (Ctrl+C) to terminate the program gracefully.
 
-    Sets a global flag to signal termination. The second SIGINT will
-    exit immediately without waiting for the thread to finish.
+    The second SIGINT will exit immediately without waiting for the thread to finish.
 
     Args:
         sig: The signal number.
@@ -82,7 +81,7 @@ sigint_handler.sigint_count = 0
 def create_csv_header(filename):
     """Create a csv file to save ASCII log data to.
 
-    This only creates  the file and writes the CSV header. Use
+    This only creates the file and writes the CSV header. Use
     `append_to_csv` to write data to the csv log file.
 
     Args:

@@ -4,6 +4,8 @@ This module provides a CLI program for manually triggering lidar measurements
 at a set interval and saving the snolog data to a csv. Distance data is plotted
 in real-time.
 
+This module assumes that the SNOdar sensor is configured in "manual" mode and has RS-232 TX enabled.
+
 Usage:
     Basic usage (30-second measurement interval):
         ```
@@ -44,8 +46,7 @@ interrupted = False
 def sigint_handler(sig, frame):
     """Handle SIGINT (Ctrl+C) to terminate the program gracefully.
 
-    Sets a global flag to signal termination. The second SIGINT will
-    exit immediately without waiting for the thread to finish.
+    The second SIGINT will exit immediately without waiting for the thread to finish.
 
     Args:
         sig: The signal number.
@@ -70,7 +71,7 @@ sigint_handler.sigint_count = 0
 def trigger_lidar_conversion(serial_port):
     """Trigger a lidar measurement on the device.
 
-    Sends the !USA to the serial port to initiate a measurement.
+    This will send the !USA to the serial port to initiate a measurement.
 
     Args:
         serial_port: The serial port object.
@@ -102,15 +103,15 @@ def read_snolog(serial_port):
 def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, queue):
     """Control the lidar measurement and data logging.
 
-    Runs in a separate thread to handle serial communication, data parsing,
-    and CSV logging. Sends timestamp and distance data to the main thread for plotting.
+    This runs in a separate thread to handle serial communication, data parsing,
+    and CSV logging. Timestamp and distance data are sent to the main thread for plotting.
 
     Args:
         serial_port: The serial port device (e.g., "/dev/ttyUSB0", "COM1").
         csv_filename: Path to the output CSV file.
         measurement_interval: Seconds between measurements.
         read_delay: Delay before reading after triggering a measurement.
-        queue: A thread-safe queue to pass data to the main thread.
+        queue: A thread-safe queue used to pass data to the main thread.
     """
     global interrupted
 
@@ -142,7 +143,7 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
 def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
     """Main entry point for the application.
 
-    Sets up signal handling, starts the lidar control thread, and initializes
+    This sets up signal handling, starts the lidar control thread, and initializes
     the real-time plotting interface.
 
     Args:
