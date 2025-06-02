@@ -76,7 +76,7 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
     """Control the lidar measurement and data logging.
 
     Runs in a separate thread to handle serial communication, data parsing,
-    and CSV logging. Sends timestamp and snow depth data to the main thread for plotting.
+    and CSV logging. Sends timestamp and distance data to the main thread for plotting.
 
     Args:
         serial_port: The serial port device (e.g., "/dev/ttyUSB0", "COM1").
@@ -105,7 +105,7 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
 
         # Send timestampe and distance data back to the main thread for plotting
         queue.put(snolog.unix_time)
-        queue.put(snolog.seasonal_snow_depth)
+        queue.put(snolog.lidar_tc_distance)
 
         sleep(measurement_interval - read_delay)
 
@@ -153,7 +153,7 @@ def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
     ax.xaxis.set_tick_params(rotation=30)
 
     plt.xlabel("Time")
-    plt.ylabel("Depth (m)")
+    plt.ylabel("Distance (m)")
 
     # Add padding so the x-axis label doesn't get cut off due to the rotated
     # tick labels.
@@ -165,19 +165,19 @@ def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
     def fetch_data():
         if queue.full():
             timestamp = queue.get()
-            snow_depth = queue.get()
+            distance = queue.get()
 
-            yield timestamp, snow_depth
+            yield timestamp, distance
         else:
             yield None
 
     def update_plot(frame):
         if frame:
             timestamp = datetime.fromtimestamp(frame[0])
-            snow_dpeth = frame[1]
+            distance = frame[1]
 
             xdata.append(timestamp)
-            ydata.append(snow_dpeth)
+            ydata.append(distance)
 
             line.set_data(xdata, ydata)
 
