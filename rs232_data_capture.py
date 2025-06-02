@@ -38,18 +38,6 @@ def sigint_handler(sig, frame):
 sigint_handler.sigint_count = 0
 
 
-def create_csv_header(filename):
-    with open(filename, "w") as csvfile:
-        writer = csv.writer(csvfile, dialect="excel")
-        writer.writerow(FIELDNAMES)
-
-
-def append_to_csv(filename, data):
-    with open(filename, "a") as csvfile:
-        writer = csv.writer(csvfile, dialect="excel")
-        writer.writerow(data)
-
-
 def disable_automated_measurement_timer(serial_port):
     nbytes = serial_port.write(NUS_DISABLE_TIMER)
     if nbytes != len(NUS_DISABLE_TIMER):
