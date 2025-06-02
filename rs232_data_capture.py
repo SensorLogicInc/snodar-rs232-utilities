@@ -12,7 +12,7 @@ import matplotlib.animation as animation
 import serial
 from matplotlib import pyplot as plt
 
-from snolog_parser import append_snolog_to_csv, create_snolog_csv
+from snolog_parser import append_snolog_to_csv, create_snolog_csv, parse_raw_snolog
 
 NUS_USA = "!USA\r".encode("utf-8")
 
