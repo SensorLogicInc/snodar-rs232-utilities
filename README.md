@@ -8,6 +8,14 @@ This repository contains various utilities for triggering measurements and loggi
 
 ## Installation
 
+### Getting the code
+
+You can either
+- clone this repository using git: `git clone https://github.com/SensorLogicInc/snodar-rs232-utilities.git`
+- [download a zip file](https://github.com/SensorLogicInc/snodar-rs232-utilities/archive/refs/heads/main.zip)
+
+### Installing dependencies
+
 Make sure you have python installed. On Linux and macOS, the system will already have some version of python. For Windows, use the [python install manager](https://www.python.org/downloads/release/pymanager-250b9/), [miniforge](https://github.com/conda-forge/miniforge), or [Anaconda Navigator](https://www.anaconda.com/download/success).
 
 These utilities require pyserial for serial communication and matplotlib for plotting. The dependencies can be installed via one of the methods listed below.
@@ -15,7 +23,7 @@ These utilities require pyserial for serial communication and matplotlib for plo
 > [!TIP]
 > All the commands below assume you're in the `snodar-rs232-utilities` directory.
 
-### pip and venv
+#### pip and venv
 
 1. If `pip` isn't installed, [install pip](https://pip.pypa.io/en/stable/installation/):
    ```
@@ -39,7 +47,7 @@ These utilities require pyserial for serial communication and matplotlib for plo
    > [!IMPORTANT]
    > You must be in the `snodar-rs232-utilities` directory when running `pip install .`
 
-### uv
+#### uv
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 2. Install depedendencies:
@@ -47,7 +55,7 @@ These utilities require pyserial for serial communication and matplotlib for plo
    uv sync
    ```
 
-### mamba/conda
+#### mamba/conda
 
 If you installed mamba or conda through miniforge or Anaconda, you can create an environment and install the dependencies as follows:
 
