@@ -247,7 +247,6 @@ def parse_args():
             - read_delay: Delay (seconds) before reading snolog data after triggering a measurement.
     """
     parser = argparse.ArgumentParser(
-        prog="SNOdar RS232 snolog data logger",
         description="Manually trigger lidar measurements at a specified interval, then log and plot snolog data. This program is designed for SNOdars that are configured in 'manual' mode.",
         allow_abbrev=False
     )

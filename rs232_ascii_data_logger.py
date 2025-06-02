@@ -235,7 +235,6 @@ def parse_args():
             - csv: Path to the output CSV file.
     """
     parser = argparse.ArgumentParser(
-        prog="SNOdar RS232 ASCII data logger",
         description="Log and plot ASCII data over RS232",
     )
 
