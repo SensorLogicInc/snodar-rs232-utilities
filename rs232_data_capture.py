@@ -154,6 +154,9 @@ def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
 
     signal.signal(signal.SIGINT, sigint_handler)
 
+    # We're sending two data points at a time back to the main thread, so
+    # we limit the queue size to 2. This lets us check if the lidar control thread
+    # is finished sending data by checking if the queue is full.
     queue = Queue(maxsize=2)
 
     lidar_control_thread = threading.Thread(
