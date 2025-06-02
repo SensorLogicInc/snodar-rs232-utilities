@@ -1,3 +1,25 @@
+"""Trigger lidar measurements and capture the resulting snolog data.
+
+This module provides a CLI program for manually trigger lidar measurements
+at a set interval and saving the snolog data to a csv.
+
+Usage:
+    Basic usage (30-second measurement interval):
+        ```
+        python rs232_data_capture.py /dev/ttyUSB0 output.csv
+        ```
+
+    60-second measurement interval, waiting for 15 seconds after each
+    measurement before reading the snolog via rs232:
+        ```
+        python rs232_data_capture.py --measurement-interval 60 --read-delay 15 COM4 output.csv
+        ```
+
+        Note that reading from the serial port is a blocking operation, so the code won't advance
+        until 128 bytes have been read, regardless of what --read-delay is set to. --read-delay
+        defaults to 0 since the serial port will keep waiting and reading until the SNOdar sends an
+        entire snolog.
+"""
 import argparse
 import os
 import signal
