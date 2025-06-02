@@ -22,7 +22,7 @@ class Snolog(NamedTuple):
     imu_roll: float  # 4 bytes, radians
     imu_pitch: float  # 4 bytes, radians
     imu_yaw: float  # 4 bytes, radians
-    imu_flag: int  # uint8, 1 byte
+    imu_flag: int  # uint8, 1 byte, indicates that roll, pitch, and/or yaw have changed significantly
     heater_enable: int  # uint8, 1 byte
     lidar_soc_temperature: int  # int8, 1 byte, deg C
     lidar_pcb_temperature: int  # int8, 1 bytes, deg C
