@@ -1,6 +1,6 @@
+import argparse
 import csv
 import struct
-import argparse
 from typing import NamedTuple
 
 
