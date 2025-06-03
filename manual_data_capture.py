@@ -23,6 +23,7 @@ Usage:
         defaults to 0 since the serial port will keep waiting and reading until the SNOdar sends an
         entire snolog.
 """
+
 import argparse
 import os
 import signal
@@ -40,7 +41,7 @@ from matplotlib import pyplot as plt
 from snolog_parser import append_snolog_to_csv, create_snolog_csv, parse_raw_snolog
 
 # Don't let windows take focus when the plot updates.
-plt.rcParams["figure.raise_window"]=False
+plt.rcParams["figure.raise_window"] = False
 
 interrupted = False
 
@@ -265,7 +266,7 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(
         description="Manually trigger lidar measurements at a specified interval, then log and plot snolog data. This program is designed for SNOdars that are configured in 'manual' mode.",
-        allow_abbrev=False
+        allow_abbrev=False,
     )
 
     parser.add_argument(

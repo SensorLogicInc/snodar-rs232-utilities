@@ -94,6 +94,7 @@ def append_snolog_to_csv(filename, snolog):
         writer = csv.writer(csv_file, dialect="excel")
         writer.writerow(snolog)
 
+
 def parse_hex_file(hex_filename, csv_filename):
     """Convert a hex file containing snolog packets into a csv file.
 
@@ -126,6 +127,7 @@ def parse_hex_file(hex_filename, csv_filename):
 
         for snolog in snolog_entries:
             writer.writerow(snolog)
+
 
 if __name__ == "__main__":
     """Convert a hex file containing snolog packets into a csv file."""
