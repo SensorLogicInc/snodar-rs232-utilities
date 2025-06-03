@@ -30,7 +30,7 @@ import sys
 import threading
 from datetime import datetime
 from queue import Queue
-from time import sleep
+from time import sleep, time
 
 import matplotlib
 import matplotlib.animation as animation
@@ -120,6 +120,7 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
     create_snolog_csv(csv_filename)
 
     while not interrupted:
+        t_start = time()
         trigger_lidar_conversion(serial_port)
 
         sleep(read_delay)
@@ -135,7 +136,21 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
         queue.put(snolog.unix_time)
         queue.put(snolog.lidar_tc_distance)
 
-        sleep(measurement_interval - read_delay)
+        t_end = time()
+
+        # Compute the elapsed time between triggering the measurement and being ready to
+        # wait for the next measurement. This ensures the measurement interval timing is more
+        # precise.
+        elapsed_time = t_end - t_start
+
+        # We can't have a measurement interval that is less than the elapsed time for a
+        # measurement, so we need to ensure the measurement_interval is greater than
+        # the elapsed time; if it's not, we can sleep.
+        sleep_time = measurement_interval - read_delay - elapsed_time
+        if sleep_time > 0:
+            sleep(sleep_time)
+        else:
+            pass
 
     serial_port.close()
 
