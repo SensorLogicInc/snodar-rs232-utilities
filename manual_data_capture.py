@@ -39,6 +39,8 @@ from matplotlib import pyplot as plt
 
 from snolog_parser import append_snolog_to_csv, create_snolog_csv, parse_raw_snolog
 
+# Don't let windows take focus when the plot updates.
+plt.rcParams["figure.raise_window"]=False
 
 interrupted = False
 
