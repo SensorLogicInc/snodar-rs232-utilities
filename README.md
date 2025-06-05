@@ -92,9 +92,10 @@ uv run rs232_data_capture.py COM4 output.csv
 
 ## `manual_data_capture.py`
 
-`manual_data_capture.py` is used for manually triggering measurements via RS-232 and recording and plotting the snolog data the gets returned. Essentially, the program continually sends the `!USA` command to a SNOdar at a given internal, parses the resulting snolog, and then plots the distance.
+`manual_data_capture.py` is used for manually triggering measurements via RS-232 and recording and plotting the snolog data that gets returned. Essentially, the program continually sends the `!USA` command to a SNOdar at a given internal, parses the resulting snolog, and then plots the distance.
 
-This program expects the SNOdar to be configured in "manual" mode. "Manual" mode disables the SNOdar's measurement timer; disabling the measurement timer ensures that automated measurements don't interfere with our manual measurements.
+> [!IMPORTANT]
+> This program expects the SNOdar to be configured in "manual" mode. "Manual" mode disables the SNOdar's measurement timer; disabling the measurement timer ensures that automated measurements don't interfere with our manual measurements.
 
 The parsed snolog data will be printed in the terminal in addition to being saved in a CSV.
 
