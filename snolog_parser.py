@@ -47,7 +47,7 @@ class Snolog(NamedTuple):
     sc_min_max_cntr: int  # int32, 4 bytes
     sc_daily_acc_sf: float  # 4 bytes
     health_flags_lo: int  # uint8, 1 byte
-    health_flag_hi: int  # uint8, 1 byte
+    health_flags_hi: int  # uint8, 1 byte
     reserved: int  # 1 byte
     checksum: int  # uint8, 1 byte
 
