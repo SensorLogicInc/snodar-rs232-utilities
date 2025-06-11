@@ -1,3 +1,4 @@
+"""Utilities for parsing snolog packets and saving them to a csv."""
 import argparse
 import csv
 import struct
