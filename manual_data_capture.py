@@ -103,7 +103,9 @@ def read_snolog(serial_port):
     return snolog
 
 
-def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, queue):
+def lidar_control(
+    serial_port, csv_filename, measurement_interval, read_delay, verbose, queue
+):
     """Control the lidar measurement and data logging.
 
     This runs in a separate thread to handle serial communication, data parsing,
@@ -131,7 +133,8 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
         # print(raw_snolog)
 
         snolog = parse_raw_snolog(raw_snolog)
-        print(snolog)
+        if verbose:
+            print(snolog)
 
         append_snolog_to_csv(csv_filename, snolog)
 
@@ -158,7 +161,9 @@ def lidar_control(serial_port, csv_filename, measurement_interval, read_delay, q
     serial_port.close()
 
 
-def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
+def main(
+    serial_port, csv_filename, measurement_interval=30, read_delay=0, verbose=False
+):
     """Main entry point for the application.
 
     This sets up signal handling, starts the lidar control thread, and initializes
@@ -169,6 +174,7 @@ def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
         csv_filename: Path to the output CSV file.
         measurement_interval: Seconds between measurements.
         read_delay: Delay before reading after triggering a measurement.
+        verbose: Boolean for verbose printing. If True, the snolog packets are printed.
     """
     global interrupted
 
@@ -186,6 +192,7 @@ def main(serial_port, csv_filename, measurement_interval=30, read_delay=0):
             csv_filename,
             measurement_interval,
             read_delay,
+            verbose,
             queue,
         ),
     )
@@ -263,6 +270,7 @@ def parse_args():
             - csv: Path to the output CSV file.
             - measurement_interval: Time (seconds) between measurements.
             - read_delay: Delay (seconds) before reading snolog data after triggering a measurement.
+            - verbose: Boolean for verbose printing
     """
     parser = argparse.ArgumentParser(
         description="Manually trigger lidar measurements at a specified interval, then log and plot snolog data. This program is designed for SNOdars that are configured in 'manual' mode.",
@@ -286,6 +294,12 @@ def parse_args():
         help="How long to wait before reading snolog data after triggering a measurement. Default = 0 seconds",
     )
 
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print out snolog and health flags for each measurement.",
+    )
+
     args = parser.parse_args()
 
     return args
@@ -299,4 +313,5 @@ if __name__ == "__main__":
         csv_filename=args.csv,
         measurement_interval=args.measurement_interval,
         read_delay=args.read_delay,
+        verbose=args.verbose,
     )
