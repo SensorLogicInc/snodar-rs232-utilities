@@ -38,6 +38,7 @@ import matplotlib.animation as animation
 import serial
 from matplotlib import pyplot as plt
 
+import snodar_live_health
 from snolog_parser import append_snolog_to_csv, create_snolog_csv, parse_raw_snolog
 
 # Don't let windows take focus when the plot updates.
@@ -135,8 +136,19 @@ def lidar_control(
         snolog = parse_raw_snolog(raw_snolog)
         if verbose:
             print(snolog)
+            print()
 
         append_snolog_to_csv(csv_filename, snolog)
+
+        health_flags = snodar_live_health.parse_flags(
+            snolog.health_flags_hi, snolog.health_flags_lo
+        )
+        if verbose:
+            print(health_flags)
+            print()
+
+        # Print warnings if any of the flags indicate a sensor health error
+        snodar_live_health.check_flags(health_flags)
 
         # Send timestamp and distance data back to the main thread for plotting
         queue.put(snolog.unix_time)
