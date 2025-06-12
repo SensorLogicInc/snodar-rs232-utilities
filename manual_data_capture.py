@@ -222,6 +222,7 @@ def main(
 
     plt.xlabel("Time")
     plt.ylabel("Distance (m)")
+    plt.title(csv_filename)
 
     # Add padding so the x-axis label doesn't get cut off due to the rotated
     # tick labels.
