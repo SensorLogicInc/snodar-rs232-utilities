@@ -44,7 +44,7 @@ These utilities require pyserial for serial communication and matplotlib for plo
    ```
    pip install .
    ```
-   
+
 > [!IMPORTANT]
 > You must be in the `snodar-rs232-utilities` directory when running `pip install .`
 
@@ -92,12 +92,12 @@ uv run rs232_data_capture.py COM4 output.csv
 
 ## `manual_data_capture.py`
 
-`manual_data_capture.py` is used for manually triggering measurements via RS-232 and recording and plotting the snolog data that gets returned. Essentially, the program continually sends the `!USA` command to a SNOdar at a given internal, parses the resulting snolog, and then plots the distance.
+`manual_data_capture.py` is used for manually triggering measurements via RS-232 and recording and plotting the snolog data that gets returned. Essentially, the program continually sends the `!USA` command to a SNOdar at a given internal, parses the resulting snolog, plots the distance, and saves the snolog data in a CSV.
 
 > [!IMPORTANT]
 > This program expects the SNOdar to be configured in "manual" mode. "Manual" mode disables the SNOdar's measurement timer; disabling the measurement timer ensures that automated measurements don't interfere with our manual measurements.
 
-The parsed snolog data will be printed in the terminal in addition to being saved in a CSV.
+With the `--verbose` flag set, the parsed snolog data and live health check flags will be printed in the terminal.
 
 ### Usage
 
@@ -118,6 +118,7 @@ options:
                         How often to take measurements. Default = 30 seconds
   --read-delay READ_DELAY
                         How long to wait before reading snolog data after triggering a measurement. Default = 0 seconds
+  --verbose             Print out snolog and health flags for each measurement.
 ```
 
 > [!NOTE]
@@ -136,6 +137,11 @@ python manual_data_capture.py --measurement-interval 15 COM3 output.csv
 **30-second measurement interval with a 15-second delay before reading from the serial port**:
 ```bash
 python manual_data_capture.py --measurement-interval 30 --read-delay 15 /dev/ttyUSB0 output.csv
+```
+
+**60-second measurement interval with verbose printing**:
+```bash
+python manual_data_capture.py --verbose --measurement-interval 60 COM3 output.csv
 ```
 
 
@@ -193,4 +199,33 @@ options:
 #### Example
 ```bash
 python snolog_parser.py raw_data.bin parsed_data.csv
+```
+
+## `snodar_live_health.py`
+
+`snodar_live_health.py` includes utility functions for parsing the live health flags in a snolog packet. This module is used in `manual_data_capture.py` and `add_health_flags_to_csv.py`.
+
+## `add_health_flags_to_csv.py`
+
+`add_health_flags_to_csv.py` is used to parse the live health flag bytes in a CSV file and add the individual flags to the CSV file. This makes deciphering the health flags easier.
+
+> [!NOTE]
+> The CSV file will be overwritten.
+
+### Usage
+
+```
+usage: add_health_flags_to_csv.py [-h] csv
+
+positional arguments:
+  csv         The CSV file to expand flag statuses in. *This CSV will be modified*.
+
+options:
+  -h, --help  show this help message and exit
+```
+
+### Example
+
+```bash
+python add_health_flags_to_csv.py snolog_data.csv
 ```
