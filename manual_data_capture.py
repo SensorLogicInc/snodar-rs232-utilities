@@ -75,7 +75,7 @@ sigint_handler.sigint_count = 0
 def trigger_lidar_conversion(serial_port):
     """Trigger a lidar measurement on the device.
 
-    This will send the !USA to the serial port to initiate a measurement.
+    This will send the !USA command to the serial port to initiate a measurement.
 
     Args:
         serial_port: The serial port object.
@@ -86,7 +86,7 @@ def trigger_lidar_conversion(serial_port):
     NUS_USA = "!USA\r".encode("utf-8")
 
     nbytes = serial_port.write(NUS_USA)
-    if nbytes != 5:
+    if nbytes != len(NUS_USA):
         print("something went wrong...?")
 
 
