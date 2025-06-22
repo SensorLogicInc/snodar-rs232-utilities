@@ -90,6 +90,21 @@ def trigger_lidar_conversion(serial_port):
         print("something went wrong...?")
 
 
+def reset_snodar(serial_port):
+    """Reset the snodar.
+
+    This will send the !RESET command to the serial port.
+
+    Args:
+        serial_port: The serial port object.
+    """
+    NUS_RESET = "!RESET\r".encode("utf-8")
+
+    nbyes = serial_port.write(NUS_RESET)
+    if nbytes != len(NUS_RESET):
+        print("something went wrong...")
+
+
 def read_snolog(serial_port):
     """Read a SNOLog packet from the serial port.
 
@@ -97,15 +112,20 @@ def read_snolog(serial_port):
         serial_port: The serial port object.
 
     Returns:
-        snolog: The raw SNOLog data read from the port.
+        snolog: The raw SNOLog data read from the port. If a read timeout occurred, None is returned.
     """
     snolog = serial_port.read(128)
 
-    return snolog
+    # Check if the read operation timed out
+    if len(snolog) < 128:
+        # Read timed out, so we return None to indicate that.
+        return None
+    else:
+        return snolog
 
 
 def lidar_control(
-    serial_port, csv_filename, measurement_interval, read_delay, verbose, queue
+    serial_port, csv_filename, measurement_interval, read_delay, read_timeout, verbose, queue
 ):
     """Control the lidar measurement and data logging.
 
@@ -117,11 +137,12 @@ def lidar_control(
         csv_filename: Path to the output CSV file.
         measurement_interval: Seconds between measurements.
         read_delay: Delay before reading after triggering a measurement.
+        read_timeout: Serial port read timeout. `None` is blocking.
         queue: A thread-safe queue used to pass data to the main thread.
     """
     global interrupted
 
-    serial_port = serial.Serial(port=serial_port, baudrate=19200)
+    serial_port = serial.Serial(port=serial_port, baudrate=19200, timeout=read_timeout)
 
     create_snolog_csv(csv_filename)
 
@@ -132,6 +153,15 @@ def lidar_control(
         sleep(read_delay)
         raw_snolog = read_snolog(serial_port)
         # print(raw_snolog)
+
+        if raw_snolog is None:
+            # A read timeout occurred, so we'll reset the sensor.
+            # During testing, it seems that read timeouts have only been
+            # occurring when the sensor seems to have undergone a watchdog reset,
+            # in which case the sensor has already been reset, but we'll still
+            # reset it.
+            warnings.warn("Read timeout occurred. Reseting the sensor...")
+            reset_snodar(serial_port)
 
         snolog = parse_raw_snolog(raw_snolog)
         if verbose:
@@ -174,7 +204,7 @@ def lidar_control(
 
 
 def main(
-    serial_port, csv_filename, measurement_interval=30, read_delay=0, verbose=False
+    serial_port, csv_filename, measurement_interval=30, read_delay=0, read_timeout=None, verbose=False
 ):
     """Main entry point for the application.
 
@@ -186,6 +216,7 @@ def main(
         csv_filename: Path to the output CSV file.
         measurement_interval: Seconds between measurements.
         read_delay: Delay before reading after triggering a measurement.
+        read_timeout: Serial port read timeout. `None` is blocking.
         verbose: Boolean for verbose printing. If True, the snolog packets are printed.
     """
     global interrupted
@@ -204,6 +235,7 @@ def main(
             csv_filename,
             measurement_interval,
             read_delay,
+            read_timeout,
             verbose,
             queue,
         ),
@@ -306,6 +338,12 @@ def parse_args():
         default=0,
         help="How long to wait before reading snolog data after triggering a measurement. Default = 0 seconds",
     )
+    parser.add_argument(
+        "--read-timeout",
+        type=int,
+        default=None,
+        help="Serial port read timeout. If unused, read operations are blocking.",
+    )
 
     parser.add_argument(
         "--verbose",
@@ -326,5 +364,6 @@ if __name__ == "__main__":
         csv_filename=args.csv,
         measurement_interval=args.measurement_interval,
         read_delay=args.read_delay,
+        read_timeout=args.read_timeout,
         verbose=args.verbose,
     )
