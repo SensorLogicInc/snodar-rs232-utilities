@@ -103,10 +103,11 @@ With the `--verbose` flag set, the parsed snolog data and live health check flag
 
 ```
 usage: manual_data_capture.py [-h] [--measurement-interval MEASUREMENT_INTERVAL] [--read-delay READ_DELAY]
+                              [--read-timeout READ_TIMEOUT] [--verbose]
                               serial_port csv
 
-Manually trigger lidar measurements at a specified interval, then log and plot snolog data. This program is designed
-for SNOdars that are configured in 'manual' mode.
+Manually trigger lidar measurements at a specified interval, then log and plot snolog data. This program is designed for SNOdars
+that are configured in 'manual' mode.
 
 positional arguments:
   serial_port           Serial port number, e.g., /dev/ttyUSB0, COM7
@@ -118,6 +119,8 @@ options:
                         How often to take measurements. Default = 30 seconds
   --read-delay READ_DELAY
                         How long to wait before reading snolog data after triggering a measurement. Default = 0 seconds
+  --read-timeout READ_TIMEOUT
+                        Serial port read timeout. If unused, read operations are blocking.
   --verbose             Print out snolog and health flags for each measurement.
 ```
 
@@ -142,6 +145,11 @@ python manual_data_capture.py --measurement-interval 30 --read-delay 15 /dev/tty
 **60-second measurement interval with verbose printing**:
 ```bash
 python manual_data_capture.py --verbose --measurement-interval 60 COM3 output.csv
+```
+
+**60-second measurement interval with a 60-second read timeout**:
+```bash
+python manual_data_capture.py --measurement-interval 60 --read-timeout 60 COM3 output.csv
 ```
 
 
